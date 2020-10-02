@@ -2,7 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
-import frappe, erpnext
+import frappe, erpnext, math
 from frappe.utils import cint, cstr, flt
 from frappe import _
 from erpnext.setup.utils import get_exchange_rate
@@ -566,13 +566,35 @@ def get_bom_items_as_dict(bom, company, qty=1, fetch_exploded=1, fetch_scrap_ite
 		items = frappe.db.sql(query, { "qty": qty, "bom": bom }, as_dict=True)
 	else:
 		query = query.format(table="BOM Item", where_conditions="",
-			select_columns = ", bom_item.source_warehouse, bom_item.idx")
+			select_columns = ", bom_item.is_additional_output, bom_item.source_warehouse, bom_item.idx")
 		items = frappe.db.sql(query, { "qty": qty, "bom": bom }, as_dict=True)
 
 	for item in items:
 		if item_dict.has_key(item.item_code):
-			item_dict[item.item_code]["qty"] += flt(item.qty)
+			quantity = item.qty
+			dbItem = frappe.get_doc("Item", item.item_code)
+			uom = dbItem.stock_uom
+			if dbItem.uom_for_manufacturing != "":
+				for u in dbItem.uoms:
+					if u.uom == dbItem.uom_for_manufacturing:
+						overrage = 1.00
+						if dbItem.is_exact == 1:
+							overrage = 1.0
+						scrapQty = math.ceil(overrage * (quantity / u.conversion_factor))
+						quantity = scrapQty * u.conversion_factor
+			item_dict[item.item_code]["qty"] += flt(quantity)
 		else:
+			quantity = item.qty
+			dbItem = frappe.get_doc("Item", item.item_code)
+			uom = dbItem.stock_uom
+			if dbItem.uom_for_manufacturing != "":
+				for u in dbItem.uoms:
+					if u.uom == dbItem.uom_for_manufacturing:
+						overrage = 1.00
+						if dbItem.is_exact == 1:
+							overrage = 1.0
+						scrapQty = math.ceil(overrage * (quantity / u.conversion_factor))
+						item.qty = scrapQty * u.conversion_factor
 			item_dict[item.item_code] = item
 
 	for item, item_details in item_dict.items():

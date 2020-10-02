@@ -4,6 +4,9 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import datetime
+import base64
+import os
 from frappe import _
 from frappe.utils import flt, get_datetime, getdate, date_diff, cint, nowdate
 from frappe.model.document import Document
@@ -18,6 +21,8 @@ from erpnext.stock.stock_balance import get_planned_qty, update_bin_qty
 from frappe.utils.csvutils import getlink
 from erpnext.stock.utils import get_bin, validate_warehouse_company, get_latest_stock_qty
 from erpnext.utilities.transaction_base import validate_uom_is_integer
+from pylibdmtx import pylibdmtx
+from PIL import Image
 
 class OverProductionError(frappe.ValidationError): pass
 class StockOverProductionError(frappe.ValidationError): pass
@@ -33,6 +38,7 @@ class ProductionOrder(Document):
 		self.validate_production_item()
 		if self.bom_no:
 			validate_bom_no(self.production_item, self.bom_no)
+			self.set_boxes_per_case()
 
 		self.validate_sales_order()
 		self.set_default_warehouse()
@@ -166,7 +172,7 @@ class ProductionOrder(Document):
 				if stock_entries:
 					status = "In Process"
 					produced_qty = stock_entries.get("Manufacture")
-					if flt(produced_qty) == flt(self.qty):
+					if flt(produced_qty) >= flt(self.qty):
 						status = "Completed"
 		else:
 			status = 'Cancelled'
@@ -182,10 +188,15 @@ class ProductionOrder(Document):
 			qty = flt(frappe.db.sql("""select sum(fg_completed_qty)
 				from `tabStock Entry` where production_order=%s and docstatus=1
 				and purpose=%s""", (self.name, purpose))[0][0])
+			
+			allowance_percentage = flt(frappe.db.get_single_value("Manufacturing Settings",
+			"over_production_allowance_percentage"))
 
-			if qty > self.qty:
+			allowableQty = int((1 + (allowance_percentage / 100)) * self.qty)
+
+			if qty > allowableQty:
 				frappe.throw(_("{0} ({1}) cannot be greater than planned quanitity ({2}) in Production Order {3}").format(\
-					self.meta.get_label(fieldname), qty, self.qty, self.name), StockOverProductionError)
+					self.meta.get_label(fieldname), qty, allowableQty, self.name), StockOverProductionError)
 
 			self.db_set(fieldname, qty)
 
@@ -471,10 +482,16 @@ class ProductionOrder(Document):
 						'item_name': item.item_name,
 						'description': item.description,
 						'required_qty': item.qty,
-						'source_warehouse': item.source_warehouse or item.default_warehouse
+						'source_warehouse': item.source_warehouse or item.default_warehouse,
+						'is_additional_output':item.is_additional_output
 					})
 
 			self.set_available_qty()
+
+	def set_boxes_per_case(self):
+		if self.bom_no:
+			self.boxes_per_case = frappe.db.get_value("BOM", self.bom_no, "boxes_per_case")
+			self.box_item = frappe.db.get_value("BOM", self.bom_no, "box_item")
 
 	def update_transaferred_qty_for_required_items(self):
 		'''update transferred qty from submitted stock entries for that item against
@@ -492,6 +509,29 @@ class ProductionOrder(Document):
 
 			d.db_set('transferred_qty', flt(transferred_qty), update_modified = False)
 
+
+@frappe.whitelist(allow_guest=True, xss_safe=True)
+def barcode_gen():
+	b_gtin = "00360432537162"
+	b_serial = "850279829966"
+	b_exp = "02/28/2021"
+	b_lot = "UU1089"
+	expiration = datetime.datetime.strptime(b_exp, '%m/%d/%Y').date()
+	combined = "01" + b_gtin + "21" + b_serial + "17" + expiration.strftime('%y%m%d') + "10" + b_lot
+	encoded = pylibdmtx.encode(combined.encode('utf8'))
+	img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
+	filename = img.save(b_serial + ".png")
+	filedata = ""
+	with open(b_serial + ".png", "rb") as fileobj:
+	    filedata = fileobj.read()
+	frappe.local.response.filename = b_serial + ".png"
+	frappe.local.response.filecontent = filedata
+	frappe.local.response.type = "download"
+	cleanup(b_serial + ".png")
+
+def cleanup(fname):
+    if os.path.exists(fname):
+        os.remove(fname)
 
 @frappe.whitelist()
 def get_item_details(item, project = None):

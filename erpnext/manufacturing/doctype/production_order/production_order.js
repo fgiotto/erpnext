@@ -378,26 +378,33 @@ erpnext.production_order = {
 		}
 
 		max = flt(max, precision("qty"));
-		frappe.prompt({fieldtype:"Float", label: __("Qty for {0}", [purpose]), fieldname:"qty",
-			description: __("Max: {0}", [max]), 'default': max },
-			function(data) {
-				if(data.qty > max) {
-					frappe.msgprint(__("Quantity must not be more than {0}", [max]));
-					return;
-				}
-				frappe.call({
-					method:"erpnext.manufacturing.doctype.production_order.production_order.make_stock_entry",
-					args: {
-						"production_order_id": frm.doc.name,
-						"purpose": purpose,
-						"qty": data.qty
-					},
-					callback: function(r) {
-						var doclist = frappe.model.sync(r.message);
-						frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+		var overProductionAllowance = 0;
+		frappe.model.get_value('Manufacturing Settings', {'name': 'Manufacturing Settings'}, 'over_production_allowance_percentage', function(d) 
+		{ 
+			overProductionAllowance = flt(d.over_production_allowance_percentage);
+			max = Math.floor((1 + (overProductionAllowance / 100)) * flt(frm.doc.qty)) - flt(frm.doc.produced_qty);
+
+			frappe.prompt({fieldtype:"Float", label: __("Qty for {0}", [purpose]), fieldname:"qty",
+				description: __("Max: {0}", [max]), 'default': max },
+				function(data) {
+					if(data.qty > max) {
+						frappe.msgprint(__("Quantity must not be more than {0}", [max]));
+						return;
 					}
-				});
-			}, __("Select Quantity"), __("Make"));
+					frappe.call({
+						method:"erpnext.manufacturing.doctype.production_order.production_order.make_stock_entry",
+						args: {
+							"production_order_id": frm.doc.name,
+							"purpose": purpose,
+							"qty": data.qty
+						},
+						callback: function(r) {
+							var doclist = frappe.model.sync(r.message);
+							frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+						}
+					});
+				}, __("Select Quantity"), __("Make"));
+		});
 	},
 	
 	stop_production_order: function(frm, status) {

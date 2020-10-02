@@ -1,0 +1,254 @@
+<style type="text/css">
+    .page-content {
+        display: block !important;
+    }
+
+    .layout-main-section {
+        border: none !important;
+    }
+
+    .content {
+        padding: 0 !important;
+        background-color: #f5f5f5;
+    }
+
+    .page-title {
+        padding: 0 0 0 15px !important;
+    }
+
+        .page-title h1 {
+            margin-top: 17px !important;
+        }
+
+    .control-label {
+        padding-top: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 5px !important;
+    }
+
+        .form-group::after {
+            content: " ";
+            display: table;
+            clear: both;
+        }
+
+    .panel-flat > .panel-heading {
+        padding-left: 30px;
+    }
+
+    .page-actions {
+        padding-top: 23px;
+    }
+
+    #CaseTable tr {
+        cursor: pointer;
+    }
+
+    #CaseTable tbody tr:hover {
+        background-color: #eeeeee;
+    }
+
+    #CaseTable tbody tr.selected {
+        background-color: #eeeeee;
+    }
+</style>
+
+<link rel="stylesheet" type="text/css" href="https://erp.lohxa.com/assets/css/colors.min.css" />
+<link rel="stylesheet" type="text/css" href="https://erp.lohxa.com/assets/css/components.min.css" />
+<link rel="stylesheet" type="text/css" href="https://erp.lohxa.com/assets/css/core.min.css" />
+<div class="layout-main-section" style="border:none; padding-top: 20px;">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-flat" style="min-height:252.8px;">
+                <div class="panel-heading">
+                    <h5 class="panel-title">Stock Entry Details</h5>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-lg-7 control-label">Name:</label>
+                        <div class="col-lg-5">
+                            <div class="form-control-static"><a class="text-semibold" id="StockEntryLink" href="~">-</a></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-7 control-label">Production Order:</label>
+                        <div class="col-lg-5">
+                            <div class="form-control-static"><a class="text-semibold" id="ProductionOrderLink" href="~">-</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel text-center panel-flat">
+                <div class="panel-heading">
+                    <div class="row text-left" style="font-size:17px;">
+                        <span class="col-lg-7 control-label">Selected Case:</span>
+                        <div class="col-lg-5">
+                            <div id="SelectedCase" class="form-control-static text-semibold text-right">NONE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="svg-center position-relative mb-5" id="progress_percentage_one"></div>
+                </div>
+                <div class="panel-body panel-body-accent pb-15">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="text-uppercase text-size-mini text-muted">Boxes Scanned</div>
+                            <h5 id="SelectedCaseScanned" class="text-semibold no-margin">-</h5>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="text-uppercase text-size-mini text-muted">Boxes Left</div>
+                            <h5 id="SelectedCaseLeft" class="text-semibold no-margin">-</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-body bg-danger-400 has-bg-image" style="min-height:252.8px; color:#fff">
+                <div class="panel-heading">
+                    <h5 class="panel-title">Boxes Scanned</h5>
+                    <div class="heading-elements">
+                    </div>
+                </div>
+                <div class="text-center text-semibold" id="BigBoxesScanned" style="font-size: 75px; padding-top: 30px;">
+                    <span>0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-flat">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Cases</h5>
+                        </div>
+                        <div class="table-responsive" id="CaseTable" style="padding: 0 20px 20px 20px;">
+                            <table class="table text-nowrap" style="margin-top: 7px;">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2">Serial Number</th>
+                                        <th class="col-md-2">Boxes Scanned</th>
+                                        <th class="col-md-2">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-flat">
+                        <div class="panel-heading">
+                            <div style="float:right;">
+                                <button class="btn btn-primary btn-sm reprint">
+                                    <i class="visible-xs octicon octicon-plus"></i>
+                                    <span class="hidden-xs">Reprint All Un-Scanned</span>
+                                </button>
+                            </div>
+                            <div style="float:left;">
+                                <h5 class="panel-title float-left">Un-Scanned Boxes</h5>
+                            </div>
+                            <div style="clear:both;"></div>
+                        </div>
+                        <div class="table-responsive" style="padding: 0 20px 20px 20px;">
+                            <table class="table text-nowrap" id="UnscannedChildBoxTable" style="margin-top: 7px;">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2">Serial Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+
+                <div class="col-lg-6">
+                    <div class="panel panel-flat">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Scanned Boxes</h5>
+                        </div>
+                        <div class="table-responsive" style="padding: 0 20px 20px 20px;">
+                            <table class="table text-nowrap" id="ChildBoxTable" style="margin-top: 7px;">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2">Serial Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-body bg-danger-400 has-bg-image" style="min-height:252.8px; color:#fff">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Boxes Left</h5>
+                            <div class="heading-elements">
+                            </div>
+                        </div>
+                        <div class="text-center text-semibold" id="BigBoxesLeft" style="font-size: 75px; padding-top: 30px;">
+                            <span>0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#BigBoxesScanned").codeScanner({
+                maxEntryTime: 700,
+                minEntryChars: 40,
+                onScan: function (el, code) {
+                    if ($("#ChildBoxTable tbody tr").length == boxesPerCase) {
+                        alert("You already scanned " + boxesPerCase + " boxes for this case");
+                        return;
+                    }
+                    if (code && code.length > boxesPerCase) {
+                        var serial = code.substring(18, 27);
+                        if (serial.startsWith("2")) {
+                            var trs = $("#CaseTable table tr");
+                            for (var i = 0; i < trs.length; i++) {
+                                if ($(trs[i]).attr("data-case-serial") == serial) {
+                                    $(trs[i]).click();
+                                }
+                            }
+                        }
+                        else {
+
+                            frappe.call({
+                                "method": "erpnext.manufacturing.page.case_aggregation.case_aggregation.add_serial_to_case",
+                                args: {
+                                    caseSerial: selectedCaseSerial,
+                                    child_serial: serial
+                                },
+                                callback: function (r) {
+                                    $("#CaseTable table tbody tr.selected").click();
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        });
+    </script>
