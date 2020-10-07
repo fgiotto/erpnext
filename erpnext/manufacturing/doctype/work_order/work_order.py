@@ -41,6 +41,7 @@ class WorkOrder(Document):
 		self.validate_production_item()
 		if self.bom_no:
 			validate_bom_no(self.production_item, self.bom_no)
+			self.set_boxes_per_case()
 
 		self.validate_sales_order()
 		self.set_default_warehouse()
@@ -465,10 +466,16 @@ class WorkOrder(Document):
 						'allow_alternative_item': item.allow_alternative_item,
 						'required_qty': item.qty,
 						'source_warehouse': item.source_warehouse or item.default_warehouse,
-						'include_item_in_manufacturing': item.include_item_in_manufacturing
+						'include_item_in_manufacturing': item.include_item_in_manufacturing,
+						'is_additional_output':item.is_additional_output
 					})
 
 			self.set_available_qty()
+
+	def set_boxes_per_case(self):
+		if self.bom_no:
+			self.boxes_per_case = frappe.db.get_value("BOM", self.bom_no, "boxes_per_case")
+			self.box_item = frappe.db.get_value("BOM", self.bom_no, "box_item")
 
 	def update_transaferred_qty_for_required_items(self):
 		'''update transferred qty from submitted stock entries for that item against
