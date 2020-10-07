@@ -215,7 +215,7 @@ frappe.ui.form.on('Stock Entry', {
 			serialsBtn.addClass('btn-primary');
 
 			var reprintBtn = frm.add_custom_button(__('Reprint Serial No'), function () {
-				frappe.db.get_value('Production Order', { name: frm.doc.production_order }, 'box_item', (p) => {
+				frappe.db.get_value('Work Order', { name: frm.doc.work_order }, 'box_item', (p) => {
 					var dialog = new frappe.ui.Dialog({
 						fields: [
 							{
