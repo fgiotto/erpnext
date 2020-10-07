@@ -189,6 +189,72 @@ frappe.ui.form.on('Stock Entry', {
 			});
 		}
 
+
+		if (frm.doc.docstatus == 1 && frm.doc.purpose == "Manufacture" && frm.doc.case_aggregation_required == 1) {
+			var aggregationBtn = frm.add_custom_button(__('Launch Case Aggregation'), function () {
+				window.location = 'http://erp.lohxa.com/desk#case_aggregation/' + frm.doc.name
+			});
+			aggregationBtn.addClass('btn-primary');
+			var caseBtn = frm.add_custom_button(__('Print Case Labels'), function () {
+				frappe.db.set_value("Stock Entry", frm.doc.name, "printcaselabels", 1);
+				frappe.msgprint({
+					title: __('Print Case Labels Submitted'),
+					message: __('Case labels have been submitted to the printer'),
+					indicator: 'green'
+				});
+			});
+			caseBtn.addClass('btn-primary');
+			var serialsBtn = frm.add_custom_button(__('Print Serials'), function () {
+				frappe.db.set_value("Stock Entry", frm.doc.name, "printserialnumbers", 1);
+				frappe.msgprint({
+					title: __('Print Serials Submitted'),
+					message: __('Serial Numbers have been submitted to the printer'),
+					indicator: 'green'
+				});
+			});
+			serialsBtn.addClass('btn-primary');
+
+			var reprintBtn = frm.add_custom_button(__('Reprint Serial No'), function () {
+				frappe.db.get_value('Production Order', { name: frm.doc.production_order }, 'box_item', (p) => {
+					var dialog = new frappe.ui.Dialog({
+						fields: [
+							{
+								fieldtype: 'Link', options: 'Serial No',
+								reqd: 1, label: 'Serial No', filters: { 'item_code': p.box_item, 'purchase_document_no': frm.doc.name }
+							},
+							{
+								fieldtype: 'Link', options: 'Item',
+								reqd: 1, label: 'Item', read_only: 1, default: p.box_item
+							}
+						]
+					});
+
+					dialog.set_primary_action(__('Print'), function () {
+						if (window.confirm('This will override any running serialization print jobs. Do you want to continue?')) {
+							var data = dialog.get_values();
+							if (!data) return;
+
+							frappe.call({
+								method: "erpnext.manufacturing.page.case_aggregation.case_aggregation.make_reprint_request",
+								args: data,
+								callback: function (r) {
+									dialog.hide();
+									frappe.msgprint({
+										title: __('Reprint Request Submitted'),
+										message: __('The Serial Reprint Request was submitted'),
+										indicator: 'green'
+									});
+								}
+							});
+						}
+					})
+
+					dialog.show();
+				});
+			});
+			reprintBtn.addClass('btn-primary');
+		}
+
 		frm.trigger("setup_quality_inspection");
 	},
 

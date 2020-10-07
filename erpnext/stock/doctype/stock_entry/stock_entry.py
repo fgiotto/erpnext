@@ -58,6 +58,7 @@ class StockEntry(StockController):
 		self.validate_finished_goods()
 		self.validate_with_material_request()
 		self.validate_batch()
+		self.validate_case_aggregation()
 		self.validate_inspection()
 		self.validate_fg_completed_qty()
 		self.validate_difference_account()
@@ -86,6 +87,7 @@ class StockEntry(StockController):
 			self.update_purchase_order_supplied_items()
 		self.make_gl_entries()
 		self.update_cost_in_project()
+		self.update_traceability()
 		self.validate_reserved_serial_no_consumption()
 		if self.work_order and self.purpose == "Manufacture":
 			self.update_so_in_serial_number()
@@ -158,6 +160,13 @@ class StockEntry(StockController):
 
 			amount += additional_cost_amt
 			frappe.db.set_value('Project', self.project, 'total_consumed_material_cost', amount)
+
+	def validate_case_aggregation(self):
+		if self.production_order:
+			boxes_per_case = frappe.db.get_value("Production Order", self.production_order, "boxes_per_case")
+			if boxes_per_case:
+				if flt(boxes_per_case) > 0:
+					self.case_aggregation_required = 1
 
 	def validate_item(self):
 		stock_items = self.get_stock_items()
@@ -282,10 +291,10 @@ class StockEntry(StockController):
 						elif self.pro_doc and (cstr(d.t_warehouse) != self.pro_doc.fg_warehouse and cstr(d.t_warehouse) != self.pro_doc.scrap_warehouse):
 							frappe.throw(_("Target warehouse in row {0} must be same as Work Order").format(d.idx))
 
-					else:
+					"""else:
 						d.t_warehouse = None
 						if not d.s_warehouse:
-							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
+							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))"""
 
 			if cstr(d.s_warehouse) == cstr(d.t_warehouse) and not self.purpose == "Material Transfer for Manufacture":
 				frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
@@ -536,8 +545,8 @@ class StockEntry(StockController):
 
 		for d in self.get('items'):
 			if self.purpose != "Subcontract" and d.bom_no and flt(d.transfer_qty) > flt(self.fg_completed_qty) and (d.t_warehouse != getattr(self, "pro_doc", frappe._dict()).scrap_warehouse):
-				frappe.throw(_("Quantity in row {0} ({1}) must be same as manufactured quantity {2}"). \
-					format(d.idx, d.transfer_qty, self.fg_completed_qty))
+				"""frappe.throw(_("Quantity in row {0} ({1}) must be same as manufactured quantity {2}"). \
+					format(d.idx, d.transfer_qty, self.fg_completed_qty))"""
 
 			if self.work_order and self.purpose == "Manufacture" and d.t_warehouse:
 				items_with_target_warehouse.append(d.item_code)
@@ -615,6 +624,29 @@ class StockEntry(StockController):
 				}))
 
 		return gl_entries
+
+	def update_traceability(self):
+		if self.production_order:
+			pro_doc = frappe.get_doc("Production Order", self.production_order)
+			for d in self.get('items'):
+				if d.item_code == pro_doc.production_item and d.batch_no:
+					result_batch = frappe.get_doc("Batch", d.batch_no)
+					if(result_batch.production_order and result_batch.production_order != self.production_order):
+						frappe.throw(_("Batch {0} already had a production run").format(d.batch_no))
+					if(result_batch.production_order != self.production_order):
+						result_batch.production_order = self.production_order
+						for b in self.get('items'):
+							if b.batch_no:
+								source_batch = frappe.get_doc("Batch", b.batch_no)
+								for t in source_batch.get('traceability'):
+									newTraceability = result_batch.append('traceability')
+									newTraceability.supplier = t.supplier
+									newTraceability.date_purchased = t.date_purchased
+									newTraceability.date_shipped = t.date_shipped
+									newTraceability.order_id = t.order_id
+									newTraceability.expiration_date = source_batch.expiry_date
+									newTraceability.batch_number = source_batch.name
+						result_batch.save()
 
 	def update_work_order(self):
 		def _validate_work_order(pro_doc):
@@ -775,6 +807,21 @@ class StockEntry(StockController):
 
 		self.set_actual_qty()
 		self.calculate_rate_and_amount(raise_error_if_no_rate=False)
+		self.get_inspection_criteria()
+
+		if self.production_order and self.purpose == "Manufacture":
+			prodItem = frappe.db.get_value("Production Order", self.production_order, "production_item")
+			prodItemName = frappe.db.get_value("Item", prodItem, "item_name")
+			frappe.db.set_value('Stock Entry', self.name, 'for_item', prodItem)	
+			frappe.db.set_value('Stock Entry', self.name, 'item_name', prodItemName)
+
+	def get_inspection_criteria(self):
+		item_code = frappe.db.get_value("BOM", self.bom_no, "item")
+		item = frappe.get_doc("Item", item_code)
+		for d in item.quality_parameters:
+			se_child = self.append('quality_inspections')
+			se_child.specification = d.specification
+			se_child.value = d.value
 
 	def set_work_order_details(self):
 		if not getattr(self, "pro_doc", None):
@@ -1045,9 +1092,16 @@ class StockEntry(StockController):
 		for d in item_dict:
 			stock_uom = item_dict[d].get("stock_uom") or frappe.db.get_value("Item", d, "stock_uom")
 
+			s_warehouse = item_dict[d].get("from_warehouse")
+			t_warehouse = item_dict[d].get("to_warehouse")
+
+			if item_dict[d].get("is_additional_output") == 1:
+				s_warehouse = ''
+				t_warehouse = 'Finished Goods - Lohxa'
+
 			se_child = self.append('items')
-			se_child.s_warehouse = item_dict[d].get("from_warehouse")
-			se_child.t_warehouse = item_dict[d].get("to_warehouse")
+			se_child.s_warehouse = s_warehouse
+			se_child.t_warehouse = t_warehouse
 			se_child.item_code = item_dict[d].get('item_code') or cstr(d)
 			se_child.item_name = item_dict[d]["item_name"]
 			se_child.description = item_dict[d]["description"]
