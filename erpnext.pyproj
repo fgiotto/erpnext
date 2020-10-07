@@ -4628,6 +4628,7 @@
     <Folder Include="erpnext\maintenance\doctype\maintenance_schedule_item" />
     <Folder Include="erpnext\maintenance\doctype\maintenance_visit" />
     <Folder Include="erpnext\maintenance\doctype\maintenance_visit_purpose" />
+    <Folder Include="erpnext\maintenance\report\" />
     <Folder Include="erpnext\maintenance\report\maintenance_schedules" />
     <Folder Include="erpnext\manufacturing" />
     <Folder Include="erpnext\manufacturing\doctype" />
@@ -4770,6 +4771,7 @@
     <Folder Include="erpnext\projects\report\project_wise_stock_tracking" />
     <Folder Include="erpnext\projects\web_form" />
     <Folder Include="erpnext\projects\web_form\tasks" />
+    <Folder Include="erpnext\public\" />
     <Folder Include="erpnext\public\css" />
     <Folder Include="erpnext\public\css\leaflet" />
     <Folder Include="erpnext\public\images" />
@@ -5041,6 +5043,7 @@
     <Folder Include="erpnext\templates\pages\non_profit" />
     <Folder Include="erpnext\templates\pages\regional" />
     <Folder Include="erpnext\templates\pages\regional\india" />
+    <Folder Include="erpnext\templates\print_formats\" />
     <Folder Include="erpnext\templates\print_formats\includes" />
     <Folder Include="erpnext\tests" />
     <Folder Include="erpnext\tests\server" />

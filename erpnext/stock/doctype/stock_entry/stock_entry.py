@@ -807,21 +807,12 @@ class StockEntry(StockController):
 
 		self.set_actual_qty()
 		self.calculate_rate_and_amount(raise_error_if_no_rate=False)
-		self.get_inspection_criteria()
 
 		if self.production_order and self.purpose == "Manufacture":
 			prodItem = frappe.db.get_value("Production Order", self.production_order, "production_item")
 			prodItemName = frappe.db.get_value("Item", prodItem, "item_name")
 			frappe.db.set_value('Stock Entry', self.name, 'for_item', prodItem)	
 			frappe.db.set_value('Stock Entry', self.name, 'item_name', prodItemName)
-
-	def get_inspection_criteria(self):
-		item_code = frappe.db.get_value("BOM", self.bom_no, "item")
-		item = frappe.get_doc("Item", item_code)
-		for d in item.quality_parameters:
-			se_child = self.append('quality_inspections')
-			se_child.specification = d.specification
-			se_child.value = d.value
 
 	def set_work_order_details(self):
 		if not getattr(self, "pro_doc", None):
