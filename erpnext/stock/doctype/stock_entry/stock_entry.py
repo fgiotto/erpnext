@@ -162,8 +162,8 @@ class StockEntry(StockController):
 			frappe.db.set_value('Project', self.project, 'total_consumed_material_cost', amount)
 
 	def validate_case_aggregation(self):
-		if self.production_order:
-			boxes_per_case = frappe.db.get_value("Production Order", self.production_order, "boxes_per_case")
+		if self.work_order:
+			boxes_per_case = frappe.db.get_value("Work Order", self.work_order, "boxes_per_case")
 			if boxes_per_case:
 				if flt(boxes_per_case) > 0:
 					self.case_aggregation_required = 1
@@ -626,15 +626,15 @@ class StockEntry(StockController):
 		return gl_entries
 
 	def update_traceability(self):
-		if self.production_order:
-			pro_doc = frappe.get_doc("Production Order", self.production_order)
+		if self.work_order:
+			pro_doc = frappe.get_doc("Production Order", self.work_order)
 			for d in self.get('items'):
 				if d.item_code == pro_doc.production_item and d.batch_no:
 					result_batch = frappe.get_doc("Batch", d.batch_no)
-					if(result_batch.production_order and result_batch.production_order != self.production_order):
+					if(result_batch.production_order and result_batch.production_order != self.work_order):
 						frappe.throw(_("Batch {0} already had a production run").format(d.batch_no))
-					if(result_batch.production_order != self.production_order):
-						result_batch.production_order = self.production_order
+					if(result_batch.production_order != self.work_order):
+						result_batch.production_order = self.work_order
 						for b in self.get('items'):
 							if b.batch_no:
 								source_batch = frappe.get_doc("Batch", b.batch_no)
@@ -808,8 +808,8 @@ class StockEntry(StockController):
 		self.set_actual_qty()
 		self.calculate_rate_and_amount(raise_error_if_no_rate=False)
 
-		if self.production_order and self.purpose == "Manufacture":
-			prodItem = frappe.db.get_value("Production Order", self.production_order, "production_item")
+		if self.work_order and self.purpose == "Manufacture":
+			prodItem = frappe.db.get_value("Work Order", self.work_order, "production_item")
 			prodItemName = frappe.db.get_value("Item", prodItem, "item_name")
 			frappe.db.set_value('Stock Entry', self.name, 'for_item', prodItem)	
 			frappe.db.set_value('Stock Entry', self.name, 'item_name', prodItemName)
