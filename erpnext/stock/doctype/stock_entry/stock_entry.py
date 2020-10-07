@@ -627,7 +627,7 @@ class StockEntry(StockController):
 
 	def update_traceability(self):
 		if self.work_order:
-			pro_doc = frappe.get_doc("Production Order", self.work_order)
+			pro_doc = frappe.get_doc("Work Order", self.work_order)
 			for d in self.get('items'):
 				if d.item_code == pro_doc.production_item and d.batch_no:
 					result_batch = frappe.get_doc("Batch", d.batch_no)
