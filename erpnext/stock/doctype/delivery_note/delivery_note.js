@@ -121,8 +121,32 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 							}
 						})
 					}, __("Get items from"));
+
+				if (this.frm.doc.items.length > 0) {
+					frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "Item",
+							filters: { "name": frm.doc.items[0].name },
+							fieldname: "has_serial_no"
+						},
+						callback: function (has_serial_no) {
+							if (has_serial_no == "1") {
+								var aggregationBtn = frm.add_custom_button(__('Launch Pallet Aggregation'), function () {
+									window.location = 'http://erp.lohxa.com/desk#pallet_aggregation/' + frm.doc.name
+								});
+								aggregationBtn.addClass('btn-primary');
+							}
+						}
+					});
+                }
 			}
 		}
+
+		if (doc.docstatus == 0 && frm.doc.purpose == "Manufacture" && frm.doc.case_aggregation_required == 1) {
+			var aggregationBtn = frm.add_custom_button(__('Launch Case Aggregation'), function () {
+				window.location = 'http://erp.lohxa.com/desk#case_aggregation/' + frm.doc.name
+			});
 
 		if (!doc.is_return && doc.status!="Closed") {
 			if(flt(doc.per_installed, 2) < 100 && doc.docstatus==1)
