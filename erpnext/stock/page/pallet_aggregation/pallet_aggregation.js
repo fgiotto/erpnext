@@ -84,16 +84,16 @@ function RefreshPalletSerials() {
                 RefreshTotalSerialsForDeliveryNote();
             });
 
-            $('.primary-action').append('<i class="visible-xs octicon octicon-plus"></i><span class="hidden-xs">Finalize</span>').removeClass('hide').click(function () {
-                frappe.call({
-                    "method": "erpnext.stock.page.pallet_aggregation.pallet_aggregation.set_pallet_aggregation_completed",
-                    args: {
-                        deliveryNoteName: deliveryNoteName
-                    },
-                    callback: function (r) {
-                        window.location = 'https://erp.lohxa.com/desk#List/Delivery%20Note/' + deliveryNoteName;
-                    }
-                });
+            $('.reprint').click(function () {
+                if (window.confirm("Are you sure you want to re-print this label?")) {
+                    var serial = $(this).closest('tr').attr('data-pallet-serial');
+                    frappe.call({
+                        "method": "erpnext.stock.page.pallet_aggregation.pallet_aggregation.print_serial_number",
+                        args: {
+                            serialNo: serial
+                        }
+                    });
+                }
             });
         }
     });
@@ -167,6 +167,20 @@ function ScanSerial(serial) {
             }
         });
     }
+}
+
+function AddFinalizeButton() {
+    $('.primary-action').append('<i class="visible-xs octicon octicon-plus"></i><span class="hidden-xs">Finalize</span>').removeClass('hide').click(function () {
+        frappe.call({
+            "method": "erpnext.stock.page.pallet_aggregation.pallet_aggregation.set_pallet_aggregation_completed",
+            args: {
+                deliveryNoteName: deliveryNoteName
+            },
+            callback: function (r) {
+                window.location = 'https://erp.lohxa.com/desk#List/Delivery%20Note/' + deliveryNoteName;
+            }
+        });
+    });
 }
 
 $.fn.codeScanner = function (options) {

@@ -113,15 +113,23 @@ def get_deliveryNote_serial_count(deliveryNoteName):
 			"deliveryNote": deliveryNoteName
 		})
 
-	palletResult = frappe.db.sql("""select serial_no
-		from `tabChild Serial No Details`
-		where parent in (%s)"""  % (','.join(['%s'] * len(deliveryNoteResult))), tuple(deliveryNoteResult))
+	if(deliveryNoteResult):
+		palletResult = frappe.db.sql("""select serial_no
+			from `tabChild Serial No Details`
+			where parent in (%s)"""  % (','.join(['%s'] * len(deliveryNoteResult))), tuple(deliveryNoteResult))
 
-	result = frappe.db.sql("""select count(*)
-		from `tabChild Serial No Details`
-		where parent in (%s)"""  % (','.join(['%s'] * len(palletResult))), tuple(palletResult))
+		if(palletResult):
+			result = frappe.db.sql("""select count(*)
+				from `tabChild Serial No Details`
+				where parent in (%s)"""  % (','.join(['%s'] * len(palletResult))), tuple(palletResult))
+			return result
+	
+	return '0'	
 
-	return result
+@frappe.whitelist()
+def print_serial_number(serialNo):
+	frappe.db.set_value("Serial No", serialNo, "print_label", "1")
+	frappe.msgprint("Print request sent to the printer")
 
 @frappe.whitelist()
 def get_deliveryNote_serial_numbers(deliveryNoteName):
@@ -156,7 +164,7 @@ def add_pallet(deliveryNoteName):
 	sr.company = 'Lohxa LLC'
 	sr.delivery_document_type = 'Delivery Note'
 	sr.delivery_document_no = deliveryNoteName
-
+	sr.print_label = 1
 	sr.insert()
 
 	return sr.name
