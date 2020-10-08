@@ -8,20 +8,20 @@ frappe.pages['pallet_aggregation'].on_page_load = function(wrapper) {
 	page.main.html(frappe.render_template("pallet_aggregation", {}));
 }
 
-var boxesPerCase = 0;
-var boxItem = "";
+//var boxesPerCase = 0;
+//var boxItem = "";
 
-var deliveryNoteName = window.location.hash.substr(window.location.hash.lastIndexOf('/') + 1);
-var selectedCaseSerial = "";
-var selectedPalletSerial = "";
-var obj = {
-    CaseSerials: [],
-    SelectedChildSerials: [],
-    UnscannedChildSerials: []
-};
-var imported = document.createElement('script');
-imported.src = 'https://d3js.org/d3.v5.min.js';
-document.head.appendChild(imported);
+//var deliveryNoteName = window.location.hash.substr(window.location.hash.lastIndexOf('/') + 1);
+//var selectedCaseSerial = "";
+//var selectedPalletSerial = "";
+//var obj = {
+//    CaseSerials: [],
+//    SelectedChildSerials: [],
+//    UnscannedChildSerials: []
+//};
+//var imported = document.createElement('script');
+//imported.src = 'https://d3js.org/d3.v5.min.js';
+//document.head.appendChild(imported);
 
 
 //$(document).ready(function () {
