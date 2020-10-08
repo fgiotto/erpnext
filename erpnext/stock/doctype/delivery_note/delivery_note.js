@@ -143,11 +143,6 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 			}
 		}
 
-		if (doc.docstatus == 0 && frm.doc.purpose == "Manufacture" && frm.doc.case_aggregation_required == 1) {
-			var aggregationBtn = frm.add_custom_button(__('Launch Case Aggregation'), function () {
-				window.location = 'http://erp.lohxa.com/desk#case_aggregation/' + frm.doc.name
-			});
-
 		if (!doc.is_return && doc.status!="Closed") {
 			if(flt(doc.per_installed, 2) < 100 && doc.docstatus==1)
 				this.frm.add_custom_button(__('Installation Note'), function() {
