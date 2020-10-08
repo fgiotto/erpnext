@@ -127,7 +127,7 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 						method: "frappe.client.get_value",
 						args: {
 							doctype: "Item",
-							filters: { "name": me.frm.doc.items[0].name },
+							filters: { "name": me.frm.doc.items[0].item_code },
 							fieldname: "has_serial_no"
 						},
 						callback: function (has_serial_no) {
