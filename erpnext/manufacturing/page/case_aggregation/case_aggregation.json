@@ -8,9 +8,9 @@
  "modified": "2017-02-20 17:33:05.913097", 
  "modified_by": "Administrator", 
  "module": "Manufacturing", 
- "name": "case-aggregation", 
+ "name": "case_aggregation", 
  "owner": "Administrator", 
- "page_name": "case-aggregation", 
+ "page_name": "case_aggregation", 
  "roles": [
   {
    "role": "Analytics"
@@ -22,5 +22,6 @@
  "script": null, 
  "standard": "Yes", 
  "style": null, 
+ "system_page": 0, 
  "title": "Case Aggregation"
 }
