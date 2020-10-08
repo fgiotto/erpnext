@@ -130,8 +130,8 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 							filters: { "name": me.frm.doc.items[0].item_code },
 							fieldname: "has_serial_no"
 						},
-						callback: function (has_serial_no) {
-							if (has_serial_no == "1") {
+						callback: function (e) {
+							if (e.message.has_serial_no == "1") {
 								var aggregationBtn = frm.add_custom_button(__('Launch Pallet Aggregation'), function () {
 									window.location = 'http://erp.lohxa.com/desk#pallet_aggregation/' + frm.doc.name
 								});
