@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2020-10-08 10:35:45.945361",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2020-10-08 10:35:48.730191",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "pallet_aggregation",
+ "owner": "Administrator",
+ "page_name": "pallet_aggregation",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Pallet Aggregation"
+}
