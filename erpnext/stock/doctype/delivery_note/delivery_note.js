@@ -132,8 +132,8 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 						},
 						callback: function (e) {
 							if (e.message.has_serial_no == "1") {
-								var aggregationBtn = this.frm.add_custom_button(__('Launch Pallet Aggregation'), function () {
-									window.location = 'http://erp.lohxa.com/desk#pallet_aggregation/' + this.frm.doc.name
+								var aggregationBtn = me.frm.add_custom_button(__('Launch Pallet Aggregation'), function () {
+									window.location = 'http://erp.lohxa.com/desk#pallet_aggregation/' + me.frm.doc.name
 								});
 								aggregationBtn.addClass('btn-primary');
 							}
