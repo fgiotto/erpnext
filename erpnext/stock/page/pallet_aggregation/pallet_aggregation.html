@@ -1,4 +1,17 @@
+<style type="text/css">
+    #PalletTable tr {
+        cursor: pointer;
+    }
 
+    #PalletTable tbody tr:hover {
+        background-color: #eeeeee;
+    }
+
+    #PalletTable tbody tr.selected {
+        background-color: #eeeeee;
+    }
+</style>
+</style>
 <div class="layout-main-section" style="border:none; padding-top: 20px;">
     <div class="row">
         <div class="col-md-4">
@@ -77,10 +90,10 @@
                 <div class="col-md-12">
                     <div class="panel text-center panel-default">
                         <div class="panel-heading">
-                            <div class="row text-left" style="font-size:17px;">
-                                <span class="col-lg-7 control-label" style="font-size:17px;">Selected Pallet:</span>
+                            <div class="row text-left">
+                                <span class="col-lg-7 panel-title" style=" font-weight: 500;">Selected Pallet:</span>
                                 <div class="col-lg-5">
-                                    <div id="SelectedPallet" class="form-control-static text-semibold text-right">NONE</div>
+                                    <div id="SelectedPallet" class="panel-title bold text-right">NONE</div>
                                 </div>
                             </div>
                         </div>
