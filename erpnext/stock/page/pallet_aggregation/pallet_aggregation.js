@@ -61,6 +61,51 @@ function AddNewPallet() {
     }
 }
 
+function ManualScanClick() {
+    if (selectedPalletSerial != '') {
+        var d = new frappe.ui.Dialog({
+            title: __('Manually Enter Cases'),
+            fields: [
+                {
+                    "fieldtype": "HTML",
+                    "options": "Enter 1 Case barcode scan per line for Pallet: <strong>" + selectedPalletSerial + "</strong>"
+                },
+                {
+                    "label": "Case Serial Numbers",
+                    "fieldname": "serialNos",
+                    "fieldtype": "Long Text"
+                }
+            ],
+            primary_action: function () {
+                var data = d.get_values();
+                var arrayOfLines = data.serialNos.match(/[^\r\n]+/g);
+                var serialArray = new Array();
+                for (var i = 0; i < arrayOfLines.length; i++) {
+                    var serial = arrayOfLines[i].substring(18, 27);
+                    if (serial.startsWith("2"))
+                        serialArray.push(serial);
+                }
+                if (serialArray.length > 0) {
+                    frappe.call({
+                        "method": "erpnext.stock.page.pallet_aggregation.pallet_aggregation.add_cases_to_pallet",
+                        args: {
+                            palletSerial: selectedPalletSerial,
+                            caseSerials: serialArray.join()
+                        },
+                        callback: function (r) {
+                            RefreshPalletChildSerials();
+                            RefreshTotalSerialsForDeliveryNote();
+                            d.hide();
+                        }
+                    });
+                }
+            },
+            primary_action_label: __('Submit')
+        });
+        d.show();
+    }
+}
+
 function RefreshPalletSerials() {
     frappe.call({
         "method": "erpnext.stock.page.pallet_aggregation.pallet_aggregation.get_pallet_serials",
@@ -82,6 +127,7 @@ function RefreshPalletSerials() {
 
                 RefreshPalletChildSerials();
                 RefreshTotalSerialsForDeliveryNote();
+                $('.manualScan').show();
             });
 
             $('.reprint').click(function () {
@@ -155,6 +201,10 @@ function ScanSerial(serial) {
         alert("You can't scan individual items on this screen");
         return;
     }
+    else if (selectedPalletSerial == '') {
+        alert("You need to select a Pallet before scanning Cases");
+        return;
+    }
     else {
         frappe.call({
             "method": "erpnext.stock.page.pallet_aggregation.pallet_aggregation.add_case_to_pallet",
@@ -177,7 +227,7 @@ function AddFinalizeButton() {
                 deliveryNoteName: deliveryNoteName
             },
             callback: function (r) {
-                window.location = 'https://erp.lohxa.com/desk#List/Delivery%20Note/' + deliveryNoteName;
+                window.location = 'https://erp.lohxa.com/desk#Form/Delivery%20Note/' + deliveryNoteName;
             }
         });
     });

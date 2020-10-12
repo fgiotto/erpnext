@@ -225,6 +225,28 @@ def add_case_to_pallet(palletSerial, caseSerial):
 	return 'Success'
 
 @frappe.whitelist()
+def add_cases_to_pallet(palletSerial, caseSerials):
+	serials = caseSerials.split(',')
+	case = frappe.get_doc("Serial No", palletSerial)
+
+	for serial in serials:
+		result = frappe.db.sql("""select count(name)
+			from `tabChild Serial No Details`
+			where serial_no=%(name)s""",
+			{
+				"name": serial
+			})[0][0]
+		if(int(result) > 0):
+			frappe.msgprint(("Case No {0} was already added to another Pallet. Skipping it.").format(serial))
+		else:
+			case.append("sub_item_serial_numbers", {
+				'serial_no': serial
+			})
+
+	case.save(ignore_permissions=True)
+	return 'Success'
+
+@frappe.whitelist()
 def remove_serial_from_case(caseSerial, child_serial):
 	case = frappe.get_doc("Serial No", caseSerial)
 	for serial in case.sub_item_serial_numbers:

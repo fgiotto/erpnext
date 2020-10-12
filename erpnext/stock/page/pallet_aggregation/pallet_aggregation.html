@@ -133,7 +133,9 @@
                             <div class="row text-left">
                                 <span class="col-lg-7 panel-title" style=" font-weight: 500;">Selected Pallet:</span>
                                 <div class="col-lg-5">
-                                    <div id="SelectedPallet" class="panel-title bold text-right">NONE</div>
+                                    <div id="SelectedPallet" class="panel-title bold text-right">
+                                        NONE
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -179,9 +181,12 @@
                 <div class="col-md-12">
                     <div class="panel panel-default" style="min-height:252.8px;">
                         <div class="panel-heading">
-                            <h5 class="panel-title">Cases Scanned</h5>
-                            <div class="heading-elements">
-                            </div>
+                            <h5 class="panel-title" style="display:inline-block;">Cases Scanned</h5>
+                            <button class="btn btn-primary btn-sm manualScan" style="float:right; display:none;">
+                                <i class="visible-xs octicon octicon-plus"></i>
+                                <span class="hidden-xs">Manual Scan</span>
+                            </button>
+                            <div style="clear:both;"></div>
                         </div>
                         <div class="text-center text-semibold" id="CasesScanned" style="font-size: 75px; padding-top: 30px;">
                             <span>0</span>
@@ -222,6 +227,10 @@
                     ScanCode(code);
                 }
             }
+        });
+
+        $(".manualScan").click(function () {
+            ManualScanClick();
         });
 
         AddFinalizeButton();
