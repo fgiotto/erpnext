@@ -213,7 +213,7 @@ def add_case_to_pallet(palletSerial, caseSerial):
 		where serial_no=%(name)s""",
 		{
 			"name": caseSerial
-		})
+		})[0][0]
 	if(int(result) > 0):
 		frappe.throw("Case was already added to another Pallet. Try again.")
 
