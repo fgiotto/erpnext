@@ -748,6 +748,7 @@
     <Content Include="erpnext\manufacturing\doctype\work_order\work_order_list.js" />
     <Content Include="erpnext\manufacturing\page\case_aggregation\case_aggregation.html" />
     <Content Include="erpnext\manufacturing\page\case_aggregation\case_aggregation.js" />
+    <Content Include="erpnext\manufacturing\page\case_aggregation\case_aggregation.json" />
     <Content Include="erpnext\manufacturing\report\bom_stock_calculated\bom_stock_calculated.js" />
     <Content Include="erpnext\manufacturing\report\bom_stock_report\bom_stock_report.html" />
     <Content Include="erpnext\manufacturing\report\bom_stock_report\bom_stock_report.js" />
@@ -1122,7 +1123,14 @@
     <Content Include="erpnext\stock\doctype\warehouse\test_warehouse.js" />
     <Content Include="erpnext\stock\doctype\warehouse\warehouse.js" />
     <Content Include="erpnext\stock\doctype\warehouse\warehouse_tree.js" />
+    <Content Include="erpnext\stock\page\delivery_scanning\delivery_scanning.html" />
+    <Content Include="erpnext\stock\page\delivery_scanning\delivery_scanning.js" />
+    <Content Include="erpnext\stock\page\delivery_scanning\delivery_scanning.json" />
+    <Content Include="erpnext\stock\page\pallet_aggregation\pallet_aggregation.html" />
+    <Content Include="erpnext\stock\page\pallet_aggregation\pallet_aggregation.js" />
+    <Content Include="erpnext\stock\page\pallet_aggregation\pallet_aggregation.json" />
     <Content Include="erpnext\stock\page\stock_balance\stock_balance.js" />
+    <Content Include="erpnext\stock\page\stock_balance\stock_balance.json" />
     <Content Include="erpnext\stock\report\batch_item_expiry_status\batch_item_expiry_status.js" />
     <Content Include="erpnext\stock\report\batch_wise_balance_history\batch_wise_balance_history.js" />
     <Content Include="erpnext\stock\report\bom_search\bom_search.js" />
@@ -3888,6 +3896,11 @@
     <Compile Include="erpnext\stock\doctype\warehouse\__init__.py" />
     <Compile Include="erpnext\stock\doctype\__init__.py" />
     <Compile Include="erpnext\stock\get_item_details.py" />
+    <Compile Include="erpnext\stock\page\delivery_scanning\delivery_scanning.py" />
+    <Compile Include="erpnext\stock\page\delivery_scanning\productionList.py" />
+    <Compile Include="erpnext\stock\page\delivery_scanning\__init__.py" />
+    <Compile Include="erpnext\stock\page\pallet_aggregation\pallet_aggregation.py" />
+    <Compile Include="erpnext\stock\page\pallet_aggregation\__init__.py" />
     <Compile Include="erpnext\stock\page\stock_balance\__init__.py" />
     <Compile Include="erpnext\stock\page\__init__.py" />
     <Compile Include="erpnext\stock\reorder_item.py" />
@@ -4971,6 +4984,8 @@
     <Folder Include="erpnext\stock\doctype\variant_field" />
     <Folder Include="erpnext\stock\doctype\warehouse" />
     <Folder Include="erpnext\stock\page" />
+    <Folder Include="erpnext\stock\page\delivery_scanning\" />
+    <Folder Include="erpnext\stock\page\pallet_aggregation\" />
     <Folder Include="erpnext\stock\page\stock_balance" />
     <Folder Include="erpnext\stock\report" />
     <Folder Include="erpnext\stock\report\batch_item_expiry_status" />
