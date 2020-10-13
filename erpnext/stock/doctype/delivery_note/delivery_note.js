@@ -122,7 +122,7 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 						})
 					}, __("Get items from"));
 
-				if (this.frm.is_new() == 0 && this.frm.doc.items.length > 0) {
+				if (this.frm.is_new() != 1 && this.frm.doc.items.length > 0) {
 					frappe.call({
 						method: "frappe.client.get_value",
 						args: {
