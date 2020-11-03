@@ -802,7 +802,7 @@ class Item(WebsiteGenerator):
 
 	def validate_stock_for_has_batch_and_has_serial(self):
 		if self.stock_ledger_created():
-			for value in ["has_batch_no", "has_serial_no"]:
+			for value in ["has_batch_no"]:
 				if frappe.db.get_value("Item", self.name, value) != self.get_value(value):
 					frappe.throw(_("Cannot change {0} as Stock Transaction for Item {1} exist.".format(value, self.name)))
 
